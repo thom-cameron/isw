@@ -6,14 +6,10 @@ use std::{
 use crossterm::event::{self, poll, Event, KeyCode, KeyEvent, KeyEventKind};
 use ratatui::{
     buffer::Buffer,
-    layout::{Alignment, Rect},
+    layout::Rect,
     style::Stylize,
-    symbols::border,
     text::{Line, Text},
-    widgets::{
-        block::{Position, Title},
-        Block, Paragraph, Widget,
-    },
+    widgets::{Block, Paragraph, Widget},
     DefaultTerminal, Frame,
 };
 
