@@ -10,7 +10,7 @@ use ratatui::{
     buffer::Buffer,
     layout::{Alignment, Constraint, Direction, Flex, Layout, Rect},
     style::{Color, Style, Styled, Stylize},
-    text::{Line, Text},
+    text::{Line, Span, Text},
     widgets::{Block, Borders, Paragraph, Widget},
     DefaultTerminal, Frame,
 };
@@ -76,6 +76,16 @@ impl App {
 
         format!("{:02}:{:02}:{:02}.{}", h, m, s, ms)
     }
+    fn get_formatted_interval_time(&self) -> String {
+        let total_s = self.interval_current_time.as_secs();
+
+        let h = total_s / 3600;
+        let m = (total_s % 3600) / 60;
+        let s = total_s % 60;
+        let ms = self.current_time.subsec_millis() / 100;
+
+        format!("interval time: {:02}:{:02}:{:02}.{} (remove this)", h, m, s, ms)
+    }
 
     fn draw(&self, frame: &mut Frame) { frame.render_widget(self, frame.area()); }
 
@@ -116,7 +126,13 @@ impl Widget for &App {
             Some(interval_list) => interval_list.intervals[self.interval_i.unwrap_or(0)].colour,
             None => Color::White,
         };
-        let counter_text = Text::from(self.get_formatted_time()).style(text_colour);
+        let text_style = text_colour;
+
+        // let counter_text = Text::from(self.get_formatted_time()).style(text_colour);
+        let counter_text = vec![
+            Line::from(Span::styled(self.get_formatted_time(), text_style)),
+            Line::from(Span::styled(self.get_formatted_interval_time(), text_style)),
+        ];
         Paragraph::new(counter_text)
             .centered()
             // .block(Block::new().borders(Borders::ALL))
