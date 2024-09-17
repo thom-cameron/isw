@@ -43,7 +43,7 @@ fn main() -> io::Result<()> {
     println!("{:#?}", intervals);
 
     let mut terminal = ratatui::init();
-    let (app_result, final_time) = App::new().run(&mut terminal);
+    let (app_result, final_time) = App::new(intervals).run(&mut terminal);
     ratatui::restore();
     println!("{final_time}");
 

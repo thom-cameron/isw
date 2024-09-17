@@ -3,13 +3,15 @@ use std::{
     time::{Duration, Instant},
 };
 
+use crate::intervals::IntervalList;
+
 use crossterm::event::{self, poll, Event, KeyCode, KeyEvent, KeyEventKind};
 use ratatui::{
     buffer::Buffer,
-    layout::Rect,
-    style::Stylize,
+    layout::{Alignment, Constraint, Direction, Flex, Layout, Rect},
+    style::{Color, Style, Styled, Stylize},
     text::{Line, Text},
-    widgets::{Block, Paragraph, Widget},
+    widgets::{Block, Borders, Paragraph, Widget},
     DefaultTerminal, Frame,
 };
 
@@ -17,14 +19,25 @@ use ratatui::{
 pub struct App {
     start_time: Instant,
     current_time: Duration,
+    interval_start_time: Instant,
+    interval_current_time: Duration,
+    intervals: Option<IntervalList>,
+    interval_i: Option<usize>,
     exit: bool,
 }
 
 impl App {
-    pub fn new() -> Self {
+    pub fn new(intervals: Option<IntervalList>) -> Self {
+        let start_time = Instant::now();
+        let zero_duration = Duration::new(0, 0);
+
         Self {
-            start_time: Instant::now(),
-            current_time: Duration::new(0, 0),
+            start_time,
+            current_time: zero_duration,
+            interval_start_time: start_time,
+            interval_current_time: zero_duration,
+            intervals,
+            interval_i: None,
             exit: false,
         }
     }
@@ -33,20 +46,25 @@ impl App {
     pub fn run(&mut self, terminal: &mut DefaultTerminal) -> (io::Result<()>, String) {
         while !self.exit {
             self.update_time();
+
             match terminal.draw(|frame| self.draw(frame)) {
-                Err(err) => return (Err(err), self.get_formatted_time()),
                 Ok(_) => {}
+                Err(err) => return (Err(err), self.get_formatted_time()),
             };
+
             match self.handle_events() {
-                Err(err) => return (Err(err), self.get_formatted_time()),
                 Ok(_) => {}
+                Err(err) => return (Err(err), self.get_formatted_time()),
             };
-            // self.handle_events()?;
         }
+
         (Ok(()), self.get_formatted_time())
     }
 
-    fn update_time(&mut self) { self.current_time = self.start_time.elapsed() }
+    fn update_time(&mut self) {
+        self.current_time = self.start_time.elapsed();
+        self.interval_current_time = self.interval_start_time.elapsed();
+    }
 
     fn get_formatted_time(&self) -> String {
         let total_s = self.current_time.as_secs();
@@ -63,17 +81,18 @@ impl App {
 
     /// updates the application's state based on user input
     fn handle_events(&mut self) -> io::Result<()> {
+        // return immediately if no key is pressed
         if !poll(Duration::from_secs(0))? {
             return Ok(());
         }
+
         match event::read()? {
-            // it's important to check that the event is a key press event as
-            // crossterm also emits key release and repeat events on Windows.
             Event::Key(key_event) if key_event.kind == KeyEventKind::Press => {
                 self.handle_key_event(key_event)
             }
             _ => {}
         };
+
         Ok(())
     }
 
@@ -89,16 +108,18 @@ impl App {
 
 impl Widget for &App {
     fn render(self, area: Rect, buf: &mut Buffer) {
-        let block = Block::new();
+        let [area] = Layout::vertical([Constraint::Percentage(25)])
+            .flex(Flex::Center)
+            .areas(area);
 
-        let counter_text = Text::from(vec![Line::from(vec![
-            // self.current_time.as_secs().to_string().green(),
-            self.get_formatted_time().green(),
-        ])]);
-
+        let text_colour = match &self.intervals {
+            Some(interval_list) => interval_list.intervals[self.interval_i.unwrap_or(0)].colour,
+            None => Color::White,
+        };
+        let counter_text = Text::from(self.get_formatted_time()).style(text_colour);
         Paragraph::new(counter_text)
             .centered()
-            .block(block)
+            // .block(Block::new().borders(Borders::ALL))
             .render(area, buf);
     }
 }
