@@ -1,13 +1,13 @@
 [package]
-name = "sw-tui"
+name = "isw"
 version = "0.1.0"
 edition = "2021"
 authors = ["Thom Cameron <thomcm@proton.me>"]
 description = "a simple terminal stopwatch application"
 readme = "readme.md"
 license-file = "license.txt"
-homepage = "https://gitlab.com/thom-cameron/sw"
-repository = "https://gitlab.com/thom-cameron/sw"
+homepage = "https://gitlab.com/thom-cameron/isw"
+repository = "https://gitlab.com/thom-cameron/isw"
 
 [dependencies]
 clap = { version = "4.5.17", features = ["derive"] }

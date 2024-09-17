@@ -1,4 +1,4 @@
-# sw
+# isw
 
 a simple terminal stopwatch application.
 
