@@ -1,11 +1,11 @@
 use std::{io, process::exit};
 
 use clap::Parser;
+
 mod intervals;
 use intervals::IntervalList;
-
-use ratatui;
 mod app;
+mod stopwatch;
 use app::App;
 
 #[derive(Parser, Debug)]
@@ -45,7 +45,7 @@ fn main() -> io::Result<()> {
     let mut terminal = ratatui::init();
     let (app_result, final_time) = App::new(intervals).run(&mut terminal);
     ratatui::restore();
-    println!("{final_time}");
 
+    println!("{final_time}");
     app_result
 }

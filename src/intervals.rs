@@ -46,33 +46,33 @@ impl IntervalList {
         Ok(ints)
     }
 
-    fn determine_colours(optional_colours: Option<Vec<u8>>, durations: &Vec<u32>) -> Vec<u8> {
+    fn determine_colours(optional_colours: Option<Vec<u8>>, durations: &[u32]) -> Vec<u8> {
         match optional_colours {
             Some(colours) => {
                 if colours.len() == durations.len() {
                     if let Some(&max_colour) = colours.iter().max() {
                         if max_colour <= MAX_COLOUR_N {
-                            return colours;
+                            colours
                         } else {
                             eprintln!(
                                 "Invalid ANSI colour code provided. Colours will be automatically \
                                  generated."
                             );
-                            return Self::generate_colours(durations.len());
+                            Self::generate_colours(durations.len())
                         }
                     } else {
                         eprintln!("No colours provided. Colours will be automatically generated.");
-                        return Self::generate_colours(durations.len());
+                        Self::generate_colours(durations.len())
                     }
                 } else {
                     eprintln!(
                         "Different number of interval durations and colours provided. Colours \
                          will be automatically generated."
                     );
-                    return Self::generate_colours(durations.len());
+                    Self::generate_colours(durations.len())
                 }
             }
-            None => return Self::generate_colours(durations.len()),
+            None => Self::generate_colours(durations.len()),
         }
     }
 
