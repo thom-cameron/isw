@@ -5,8 +5,8 @@ mod intervals;
 use intervals::IntervalList;
 
 use ratatui;
-mod tui;
-use tui::App;
+mod app;
+use app::App;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
