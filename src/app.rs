@@ -1,9 +1,6 @@
-use std::{
-    io,
-    time::{Duration, Instant},
-};
+use std::{io, time::Duration};
 
-use crate::intervals::{Interval, IntervalList};
+use crate::intervals::IntervalList;
 use crate::stopwatch::Stopwatch;
 
 use crossterm::event::{self, poll, Event, KeyCode, KeyEvent, KeyEventKind};
@@ -24,19 +21,8 @@ pub struct App {
 
 impl App {
     pub fn new(interval_list: Option<IntervalList>) -> Self {
-        let start_time = Instant::now();
-        let zero_duration = Duration::new(0, 0);
-
         Self {
-            stopwatch: Stopwatch {
-                start_time,
-                current_time: zero_duration,
-                interval_start_time: start_time,
-                interval_current_time: zero_duration,
-                interval_list,
-                interval_i: 0,
-                intervals_elapsed: 0,
-            },
+            stopwatch: Stopwatch::new(interval_list),
             exit: false,
         }
     }
@@ -60,7 +46,9 @@ impl App {
         (Ok(()), self.stopwatch.get_formatted_time())
     }
 
-    fn draw(&self, frame: &mut Frame) { frame.render_widget(self, frame.area()); }
+    fn draw(&self, frame: &mut Frame) {
+        frame.render_widget(self, frame.area());
+    }
 
     /// updates the application's state based on user input
     fn handle_events(&mut self) -> io::Result<()> {
@@ -86,7 +74,9 @@ impl App {
         }
     }
 
-    fn exit(&mut self) { self.exit = true; }
+    fn exit(&mut self) {
+        self.exit = true;
+    }
 }
 
 impl Widget for &App {
@@ -102,8 +92,24 @@ impl Widget for &App {
         let text_style = text_colour;
 
         let counter_text = vec![
-            Line::from(Span::styled(self.stopwatch.get_formatted_time(), text_style)),
-            Line::from(Span::styled(self.stopwatch.get_formatted_interval_time(), text_style)),
+            Line::from(Span::styled(
+                self.stopwatch.get_formatted_time(),
+                text_style,
+            )),
+            Line::from(Span::styled(
+                self.stopwatch.get_formatted_interval_time(),
+                text_style,
+            )),
+            Line::from(format!(
+                "interval duration: {:#?}",
+                self.stopwatch.interval_list.as_ref().unwrap().intervals[self.stopwatch.interval_i]
+                    .duration
+            )),
+            Line::from(format!("intervals: {}", self.stopwatch.intervals_elapsed)),
+            Line::from(format!(
+                "interval cycles: {}",
+                self.stopwatch.interval_cycles_elapsed
+            )),
         ];
         Paragraph::new(counter_text)
             .centered()
