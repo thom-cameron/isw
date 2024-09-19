@@ -19,8 +19,8 @@ pub struct Args {
     #[arg(short, long, default_value_t = false)]
     pub pause: bool,
 
-    /// Execute a shell command at the end of intervals ("%i for interval and %c
-    /// for cycle")
+    /// Execute a shell command at the end of intervals ("%i" for interval and
+    /// "%c" for cycle)
     #[arg(short, long)]
     pub shell: Option<String>,
 
