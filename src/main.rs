@@ -33,7 +33,14 @@ fn main() -> io::Result<()> {
     };
 
     let mut terminal = ratatui::init();
-    let stopwatch = Stopwatch::new(intervals, args.descending, args.pause);
+    let stopwatch = Stopwatch::new(
+        intervals,
+        args.descending,
+        args.pause,
+        args.shell,
+        args.show_interval,
+        args.show_cycle,
+    );
     let (app_result, final_time) = App::new(stopwatch).run(&mut terminal);
     ratatui::restore();
 

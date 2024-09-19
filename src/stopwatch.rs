@@ -11,19 +11,23 @@ pub struct Stopwatch {
     pub current_time: Duration,
     display_time: DisplayTime,
 
-    pub interval_start_time: Instant,
-    pub interval_end_time: Instant,
-    pub interval_remaining_time: Duration,
-    pub interval_list: Option<IntervalList>,
-    pub interval_i: usize,
-    pub intervals_elapsed: usize,
-    pub interval_cycles_elapsed: usize,
+    interval_start_time: Instant,
+    interval_end_time: Instant,
+    interval_remaining_time: Duration,
+    interval_list: Option<IntervalList>,
+    interval_i: usize,
+    intervals_elapsed: usize,
+    interval_cycles_elapsed: usize,
+    show_interval: bool,
+    show_cycle: bool,
 
-    pub paused: bool,
-    pub paused_time_overall: Duration,
-    pub paused_time_last: Duration,
-    pub paused_start_time: Instant,
+    paused: bool,
+    paused_time_overall: Duration,
+    paused_time_last: Duration,
+    paused_start_time: Instant,
     pause_on_interval: bool,
+
+    interval_shell_command: Option<String>,
 }
 
 impl Stopwatch {
@@ -31,6 +35,9 @@ impl Stopwatch {
         interval_list: Option<IntervalList>,
         count_down: bool,
         pause_on_interval: bool,
+        shell_command: Option<String>,
+        show_interval: bool,
+        show_cycle: bool,
     ) -> Self {
         let start_time = Instant::now();
         let zero_duration = Duration::from_secs(0);
@@ -51,12 +58,16 @@ impl Stopwatch {
             interval_i: 0,
             intervals_elapsed: 0,
             interval_cycles_elapsed: 0,
+            show_interval,
+            show_cycle,
 
             paused: pause_on_interval,
             paused_time_overall: zero_duration,
             paused_time_last: zero_duration,
             paused_start_time: start_time,
             pause_on_interval,
+
+            interval_shell_command: shell_command,
         }
     }
 
@@ -69,9 +80,19 @@ impl Stopwatch {
             if self.interval_list.is_some() {
                 self.interval_remaining_time = self.interval_end_time - Instant::now();
                 if self.interval_remaining_time <= Duration::from_secs(0) {
-                    self.next_interval();
+                    self.interval_boundary();
                 }
             }
+        }
+    }
+
+    fn interval_boundary(&mut self) {
+        self.next_interval();
+
+        self.execute_shell_command();
+
+        if self.pause_on_interval {
+            self.toggle_pause();
         }
     }
 
@@ -90,9 +111,33 @@ impl Stopwatch {
             self.interval_end_time =
                 self.interval_start_time + interval_list.intervals[self.interval_i].duration;
         }
+    }
 
-        if self.pause_on_interval {
-            self.toggle_pause();
+    fn execute_shell_command(&mut self) {
+        if let Some(shell_command) = &self.interval_shell_command {
+            let shell_command = &shell_command
+                .replace("%i", &self.intervals_elapsed.to_string())
+                .replace("%c", &self.interval_cycles_elapsed.to_string());
+
+            let mut arguments = shell_command.split_whitespace();
+            if let Some(command) = arguments.next() {
+                let _ = std::process::Command::new(command).args(arguments).spawn();
+            };
+        };
+    }
+
+    pub fn toggle_pause(&mut self) {
+        self.paused = !self.paused;
+
+        match self.paused {
+            // pausing
+            true => self.paused_start_time = Instant::now(),
+            // un-pausing
+            false => {
+                self.paused_time_last = self.paused_start_time.elapsed();
+                self.paused_time_overall += self.paused_time_last;
+                self.interval_end_time += self.paused_time_last;
+            }
         }
     }
 
@@ -102,20 +147,27 @@ impl Stopwatch {
             .and_then(|interval_list| interval_list.intervals.get(self.interval_i))
     }
 
-    pub fn toggle_pause(&mut self) {
-        self.paused = !self.paused;
+    pub fn get_status_string(&self) -> String {
+        let mut status_string_parts = Vec::new();
 
-        match self.paused {
-            true => self.paused_start_time = Instant::now(),
-            false => {
-                self.paused_time_last = self.paused_start_time.elapsed();
-                self.paused_time_overall += self.paused_time_last;
-                self.interval_end_time += self.paused_time_last;
-            }
-        }
+        if self.show_interval {
+            status_string_parts.push(format!("i{}", self.intervals_elapsed + 1));
+        };
+
+        if self.show_cycle {
+            status_string_parts.push(format!("c{}", self.interval_cycles_elapsed + 1));
+        };
+
+        if self.paused {
+            status_string_parts.push("•".to_string());
+        };
+
+        status_string_parts.join(" ")
     }
+}
 
-    fn get_formatted_time(&self) -> String {
+impl fmt::Display for Stopwatch {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let display_time = match self.display_time {
             DisplayTime::Current => self.current_time,
             DisplayTime::Countdown => self.interval_remaining_time,
@@ -127,13 +179,7 @@ impl Stopwatch {
         let s = total_s % 60;
         let ms = display_time.subsec_millis() / 100;
 
-        format!("{:02}:{:02}:{:02}.{}", h, m, s, ms)
-    }
-}
-
-impl fmt::Display for Stopwatch {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.get_formatted_time())
+        write!(f, "{:02}:{:02}:{:02}.{}", h, m, s, ms)
     }
 }
 

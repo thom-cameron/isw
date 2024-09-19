@@ -8,7 +8,7 @@ use ratatui::{
     layout::{Constraint, Flex, Layout, Rect},
     style::Color,
     text::{Line, Span},
-    widgets::{Block, Paragraph, Widget},
+    widgets::{Paragraph, Widget},
     DefaultTerminal, Frame,
 };
 
@@ -88,10 +88,8 @@ impl Widget for &App {
         let text_style = text_colour;
 
         let counter_text = vec![
+            Line::from(Span::styled(self.stopwatch.get_status_string(), text_style)),
             Line::from(Span::styled(self.stopwatch.to_string(), text_style)),
-            Line::from(format!("intervals: {}", self.stopwatch.intervals_elapsed)),
-            Line::from(format!("interval cycles: {}", self.stopwatch.interval_cycles_elapsed)),
-            Line::from(format!("paused: {}", self.stopwatch.paused)),
         ];
         Paragraph::new(counter_text)
             .centered()

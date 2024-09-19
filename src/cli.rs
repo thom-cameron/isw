@@ -15,7 +15,20 @@ pub struct Args {
     #[arg(short, long, default_value_t = false)]
     pub descending: bool,
 
-    /// Pause on interval boundaries
+    /// Pause on interval boundaries (p or space to unpause)
     #[arg(short, long, default_value_t = false)]
     pub pause: bool,
+
+    /// Execute a shell command at the end of intervals ("%i for interval and %c
+    /// for cycle")
+    #[arg(short, long)]
+    pub shell: Option<String>,
+
+    /// Show the number of intervals elapsed
+    #[arg(long, default_value_t = false)]
+    pub show_interval: bool,
+
+    /// Show the current number of interval cycles elapsed
+    #[arg(long, default_value_t = false)]
+    pub show_cycle: bool,
 }
