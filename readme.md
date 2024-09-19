@@ -36,7 +36,7 @@ Options:
   -c, --colours <COLOURS>      Colours to represent each interval (comma-separated ANSI colours (0-7))
   -d, --descending             Count down to each interval boundary
   -p, --pause                  Pause on interval boundaries (p or space to unpause)
-  -s, --shell <SHELL>          Execute a shell command at the end of intervals ("%i for interval and %c for cycle")
+  -s, --shell <SHELL>          Execute a shell command at the end of intervals ("%i" for interval and "%c" for cycle)
       --show-interval          Show the number of intervals elapsed
       --show-cycle             Show the current number of interval cycles elapsed
   -h, --help                   Print help
