@@ -1,15 +1,14 @@
 use std::{io, time::Duration};
 
-use crate::intervals::IntervalList;
 use crate::stopwatch::Stopwatch;
 
 use crossterm::event::{self, poll, Event, KeyCode, KeyEvent, KeyEventKind};
 use ratatui::{
     buffer::Buffer,
-    layout::{Alignment, Constraint, Direction, Flex, Layout, Rect},
-    style::{Color, Style, Styled, Stylize},
-    text::{Line, Span, Text},
-    widgets::{Block, Borders, Paragraph, Widget},
+    layout::{Constraint, Flex, Layout, Rect},
+    style::Color,
+    text::{Line, Span},
+    widgets::{Block, Paragraph, Widget},
     DefaultTerminal, Frame,
 };
 
@@ -20,9 +19,9 @@ pub struct App {
 }
 
 impl App {
-    pub fn new(interval_list: Option<IntervalList>) -> Self {
+    pub fn new(stopwatch: Stopwatch) -> Self {
         Self {
-            stopwatch: Stopwatch::new(interval_list),
+            stopwatch,
             exit: false,
         }
     }
@@ -34,21 +33,19 @@ impl App {
 
             match terminal.draw(|frame| self.draw(frame)) {
                 Ok(_) => {}
-                Err(err) => return (Err(err), self.stopwatch.get_formatted_time()),
+                Err(err) => return (Err(err), self.stopwatch.to_string()),
             };
 
             match self.handle_events() {
                 Ok(_) => {}
-                Err(err) => return (Err(err), self.stopwatch.get_formatted_time()),
+                Err(err) => return (Err(err), self.stopwatch.to_string()),
             };
         }
 
-        (Ok(()), self.stopwatch.get_formatted_time())
+        (Ok(()), self.stopwatch.to_string())
     }
 
-    fn draw(&self, frame: &mut Frame) {
-        frame.render_widget(self, frame.area());
-    }
+    fn draw(&self, frame: &mut Frame) { frame.render_widget(self, frame.area()); }
 
     /// updates the application's state based on user input
     fn handle_events(&mut self) -> io::Result<()> {
@@ -70,13 +67,12 @@ impl App {
     fn handle_key_event(&mut self, key_event: KeyEvent) {
         match key_event.code {
             KeyCode::Char('q') => self.exit(),
+            KeyCode::Char('p') | KeyCode::Char(' ') => self.stopwatch.toggle_pause(),
             _ => {}
         }
     }
 
-    fn exit(&mut self) {
-        self.exit = true;
-    }
+    fn exit(&mut self) { self.exit = true; }
 }
 
 impl Widget for &App {
@@ -92,24 +88,10 @@ impl Widget for &App {
         let text_style = text_colour;
 
         let counter_text = vec![
-            Line::from(Span::styled(
-                self.stopwatch.get_formatted_time(),
-                text_style,
-            )),
-            Line::from(Span::styled(
-                self.stopwatch.get_formatted_interval_time(),
-                text_style,
-            )),
-            Line::from(format!(
-                "interval duration: {:#?}",
-                self.stopwatch.interval_list.as_ref().unwrap().intervals[self.stopwatch.interval_i]
-                    .duration
-            )),
+            Line::from(Span::styled(self.stopwatch.to_string(), text_style)),
             Line::from(format!("intervals: {}", self.stopwatch.intervals_elapsed)),
-            Line::from(format!(
-                "interval cycles: {}",
-                self.stopwatch.interval_cycles_elapsed
-            )),
+            Line::from(format!("interval cycles: {}", self.stopwatch.interval_cycles_elapsed)),
+            Line::from(format!("paused: {}", self.stopwatch.paused)),
         ];
         Paragraph::new(counter_text)
             .centered()

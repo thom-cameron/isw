@@ -1,29 +1,20 @@
 use std::{io, process::exit};
 
-use clap::Parser;
-
 mod intervals;
 use intervals::IntervalList;
-mod app;
+mod cli;
 mod stopwatch;
-use app::App;
+mod tui;
+use crate::cli::Args;
+use crate::stopwatch::Stopwatch;
+use tui::App;
 
-#[derive(Parser, Debug)]
-#[command(version, about, long_about = None)]
-struct Args {
-    /// Intervals to cycle colour on (comma-separated seconds)
-    #[arg(short, long)]
-    durations: Option<String>,
-
-    /// Colours to represent each interval (comma-separated ANSI colours (0-7))
-    #[arg(short, long)]
-    colours: Option<String>,
-}
+use clap::Parser;
 
 fn main() -> io::Result<()> {
     let args = Args::parse();
 
-    let intervals: Option<IntervalList> = match args.durations {
+    let intervals: Option<IntervalList> = match args.intervals {
         Some(durations) => match IntervalList::new(durations, args.colours) {
             Ok(intervals) => Some(intervals),
             Err(e) => {
@@ -40,10 +31,10 @@ fn main() -> io::Result<()> {
             None
         }
     };
-    println!("{:#?}", intervals);
 
     let mut terminal = ratatui::init();
-    let (app_result, final_time) = App::new(intervals).run(&mut terminal);
+    let stopwatch = Stopwatch::new(intervals, args.descending, args.pause);
+    let (app_result, final_time) = App::new(stopwatch).run(&mut terminal);
     ratatui::restore();
 
     println!("{final_time}");
