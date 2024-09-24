@@ -42,3 +42,14 @@ Options:
   -h, --help                   Print help
   -V, --version                Print version
 ```
+
+for example, for a typical 25 minutes on, 5 minutes off pomodoro timer that sends a notification on interval boundaries and pauses to allow time to finish up tasks etc.:
+
+``` fish
+isw \
+  --intervals 1500,300 \
+  --colours 2,1 \
+  --shell 'notify-send isw interval' \
+  --pause \
+  --show-cycle
+```
