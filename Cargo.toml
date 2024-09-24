@@ -12,4 +12,5 @@ repository = "https://gitlab.com/thom-cameron/isw"
 [dependencies]
 clap = { version = "4.5.17", features = ["derive"] }
 crossterm = "0.28.1"
+keepawake = "0.5.1"
 ratatui = "0.28.1"
