@@ -71,7 +71,7 @@ impl Stopwatch {
         }
     }
 
-    /// Update the current time on the stopwatch and reevaluate interval if
+    /// update the current time on the stopwatch and re-evaluate interval if
     /// applicable/necessary
     pub fn update_time(&mut self) {
         if !self.paused {
@@ -86,6 +86,7 @@ impl Stopwatch {
         }
     }
 
+    /// execute actions when an interval boundary is reached
     fn interval_boundary(&mut self) {
         self.next_interval();
 
@@ -96,6 +97,7 @@ impl Stopwatch {
         }
     }
 
+    /// move to the next interval
     fn next_interval(&mut self) {
         self.intervals_elapsed += 1;
 
@@ -113,6 +115,7 @@ impl Stopwatch {
         }
     }
 
+    /// run the shell command provided by the user in the cli
     fn execute_shell_command(&mut self) {
         if let Some(shell_command) = &self.interval_shell_command {
             let shell_command = &shell_command
@@ -126,6 +129,7 @@ impl Stopwatch {
         };
     }
 
+    /// toggle the pause state and track how long pauses last
     pub fn toggle_pause(&mut self) {
         self.paused = !self.paused;
 
@@ -141,23 +145,23 @@ impl Stopwatch {
         }
     }
 
+    /// get the current interval from the interval list
     pub fn get_current_interval(&self) -> Option<&Interval> {
         self.interval_list
             .as_ref()
             .and_then(|interval_list| interval_list.intervals.get(self.interval_i))
     }
 
+    /// create the status string to display under the stopwatch
     pub fn get_status_string(&self) -> String {
         let mut status_string_parts = Vec::new();
 
         if self.show_interval {
             status_string_parts.push(format!("i{}", self.intervals_elapsed + 1));
         };
-
         if self.show_cycle {
             status_string_parts.push(format!("c{}", self.interval_cycles_elapsed + 1));
         };
-
         if self.paused {
             status_string_parts.push("•".to_string());
         };

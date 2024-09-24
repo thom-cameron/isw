@@ -31,6 +31,7 @@ impl IntervalList {
         Ok(Self { intervals })
     }
 
+    /// parse comma separated strings of integers from the cli
     fn parse_int_string<T>(int_string: String) -> Result<Vec<T>, io::Error>
     where
         T: FromStr,
@@ -46,36 +47,46 @@ impl IntervalList {
         Ok(ints)
     }
 
+    /// determine which colours to use for intervals
     fn determine_colours(optional_colours: Option<Vec<u8>>, durations: &[u32]) -> Vec<u8> {
-        match optional_colours {
-            Some(colours) => {
-                if colours.len() == durations.len() {
-                    if let Some(&max_colour) = colours.iter().max() {
-                        if max_colour <= MAX_COLOUR_N {
-                            colours
-                        } else {
-                            eprintln!(
-                                "Invalid ANSI colour code provided. Colours will be automatically \
-                                 generated."
-                            );
-                            Self::generate_colours(durations.len())
-                        }
-                    } else {
-                        eprintln!("No colours provided. Colours will be automatically generated.");
-                        Self::generate_colours(durations.len())
-                    }
-                } else {
-                    eprintln!(
-                        "Different number of interval durations and colours provided. Colours \
-                         will be automatically generated."
-                    );
-                    Self::generate_colours(durations.len())
-                }
-            }
-            None => Self::generate_colours(durations.len()),
+        // generate colours if none are provided
+        let colours = match optional_colours {
+            Some(colours) => colours,
+            None => return Self::generate_colours(durations.len()),
+        };
+
+        // generate colours if the wrong number are provided
+        if colours.len() != durations.len() {
+            eprintln!(
+                "Different number of interval durations and colours provided. Colours will be \
+                 automatically generated."
+            );
+            return Self::generate_colours(durations.len());
         }
+
+        // generate colours if invalid codes are provided
+        let max_colour = match colours.iter().max() {
+            Some(&max) => max,
+            None => {
+                eprintln!(
+                    "Error evaluating the colours provided. Colours will be automatically \
+                     generated."
+                );
+                return Self::generate_colours(durations.len());
+            }
+        };
+        if max_colour > MAX_COLOUR_N {
+            eprintln!(
+                "Invalid ANSI colour code provided. Colours will be automatically generated."
+            );
+            return Self::generate_colours(durations.len());
+        }
+
+        // use the provided colours if they are valid
+        colours
     }
 
+    // generate a colour for each interval by cycling through the ANSI options
     fn generate_colours(n_colours: usize) -> Vec<u8> {
         (0..n_colours)
             .map(|n| (n as u8 % MAX_COLOUR_N) + 1)

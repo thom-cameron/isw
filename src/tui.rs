@@ -6,7 +6,7 @@ use crossterm::event::{self, poll, Event, KeyCode, KeyEvent, KeyEventKind};
 use ratatui::{
     buffer::Buffer,
     layout::{Constraint, Flex, Layout, Rect},
-    style::Color,
+    style::{Color, Modifier, Style},
     text::{Line, Span},
     widgets::{Paragraph, Widget},
     DefaultTerminal, Frame,
@@ -45,6 +45,7 @@ impl App {
         (Ok(()), self.stopwatch.to_string())
     }
 
+    /// draws the next frame of the tui
     fn draw(&self, frame: &mut Frame) { frame.render_widget(self, frame.area()); }
 
     /// updates the application's state based on user input
@@ -64,6 +65,7 @@ impl App {
         Ok(())
     }
 
+    /// map keys to functionality
     fn handle_key_event(&mut self, key_event: KeyEvent) {
         match key_event.code {
             KeyCode::Char('q') => self.exit(),
@@ -72,24 +74,27 @@ impl App {
         }
     }
 
+    /// exit the main loop of the app
     fn exit(&mut self) { self.exit = true; }
 }
 
 impl Widget for &App {
+    /// draw the tui of the app
     fn render(self, area: Rect, buf: &mut Buffer) {
         let [area] = Layout::vertical([Constraint::Percentage(25)])
             .flex(Flex::Center)
             .areas(area);
 
-        let text_colour = match self.stopwatch.get_current_interval() {
-            Some(interval) => interval.colour,
-            None => Color::White,
-        };
-        let text_style = text_colour;
+        let text_style = Style::new()
+            .fg(match self.stopwatch.get_current_interval() {
+                Some(interval) => interval.colour,
+                None => Color::White,
+            })
+            .add_modifier(Modifier::BOLD);
 
         let counter_text = vec![
-            Line::from(Span::styled(self.stopwatch.get_status_string(), text_style)),
             Line::from(Span::styled(self.stopwatch.to_string(), text_style)),
+            Line::from(Span::raw(self.stopwatch.get_status_string())),
         ];
         Paragraph::new(counter_text)
             .centered()
