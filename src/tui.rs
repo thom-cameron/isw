@@ -1,4 +1,8 @@
-use std::{io, time::Duration};
+use std::{
+    io,
+    thread::sleep,
+    time::{Duration, Instant},
+};
 
 use crate::stopwatch::Stopwatch;
 
@@ -11,6 +15,8 @@ use ratatui::{
     widgets::{Paragraph, Widget},
     DefaultTerminal, Frame,
 };
+
+const REFRESH_RATE_HZ: f32 = 10.;
 
 #[derive(Debug)]
 pub struct App {
@@ -28,7 +34,11 @@ impl App {
 
     /// runs the application's main loop until the user quits
     pub fn run(&mut self, terminal: &mut DefaultTerminal) -> (io::Result<()>, String) {
+        let loop_duration = Duration::from_millis(((1.0 / REFRESH_RATE_HZ) * 1000.0) as u64);
+
         while !self.exit {
+            let loop_start_time = Instant::now();
+
             self.stopwatch.update_time();
 
             match terminal.draw(|frame| self.draw(frame)) {
@@ -40,6 +50,8 @@ impl App {
                 Ok(_) => {}
                 Err(err) => return (Err(err), self.stopwatch.to_string()),
             };
+
+            sleep(loop_duration - loop_start_time.elapsed());
         }
 
         (Ok(()), self.stopwatch.to_string())
