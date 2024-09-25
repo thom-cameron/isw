@@ -13,11 +13,17 @@ stages:
 # check stage
 test:
   stage: check
+  rules:
+    - changes:
+      - src/*
   script:
     - cargo test
 
 lint:
   stage: check
+  rules:
+    - changes:
+      - src/*
   script:
     - rustup component add clippy
     - cargo clippy -- -D warnings
