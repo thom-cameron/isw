@@ -27,20 +27,16 @@ lint:
 build:amd64:
   stage: build
   rules:
-    - changes: 
-        - Cargo.toml
       when: manual
   script:
     - cargo build --release
   artifacts:
     paths:
-      - target/release/river-dwindle
+      - target/release/isw
 
 publish:
   stage: build
   rules:
-    - changes: 
-        - Cargo.toml
       when: manual
   script:
     - cargo publish --token "$CRATESIO_TOKEN"
