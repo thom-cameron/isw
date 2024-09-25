@@ -27,6 +27,8 @@ lint:
 build:amd64:
   stage: build
   rules:
+    - changes:
+        - Cargo.toml
       when: manual
   script:
     - cargo build --release
@@ -37,6 +39,8 @@ build:amd64:
 publish:
   stage: build
   rules:
+    - changes:
+        - Cargo.toml
       when: manual
   script:
     - cargo publish --token "$CRATESIO_TOKEN"
