@@ -19,7 +19,7 @@ test:
 lint:
   stage: check
   script:
-    - rustup component add rustfmt clippy
+    - rustup component add rustfmt clippy --toolchain nightly
     - cargo fmt -- --check
     - cargo clippy -- -D warnings
 
