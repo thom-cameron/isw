@@ -1,0 +1,47 @@
+image: "rust:latest"
+
+default:
+  before_script:
+    - rustc --version 
+    - cargo --version
+
+stages:
+  - check
+  - build
+
+
+# check stage
+test:
+  stage: check
+  script:
+    - cargo test
+
+lint:
+  stage: check
+  script:
+    - rustup component add rustfmt clippy
+    - cargo fmt -- --check
+    - cargo clippy -- -D warnings
+
+
+# build stage
+build:amd64:
+  stage: build
+  rules:
+    - changes: 
+        - Cargo.toml
+      when: manual
+  script:
+    - cargo build --release
+  artifacts:
+    paths:
+      - target/release/river-dwindle
+
+publish:
+  stage: build
+  rules:
+    - changes: 
+        - Cargo.toml
+      when: manual
+  script:
+    - cargo publish --token "$CRATESIO_TOKEN"
