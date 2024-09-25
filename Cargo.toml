@@ -1,6 +1,6 @@
 [package]
 name = "isw"
-version = "0.3.2"
+version = "0.3.3"
 edition = "2021"
 authors = ["Thom Cameron <thomcm@proton.me>"]
 description = "a simple terminal stopwatch application"
