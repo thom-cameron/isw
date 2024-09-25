@@ -70,6 +70,7 @@ impl App {
         match key_event.code {
             KeyCode::Char('q') => self.exit(),
             KeyCode::Char('p') | KeyCode::Char(' ') => self.stopwatch.toggle_pause(),
+            KeyCode::Char('r') => self.stopwatch.reset(),
             _ => {}
         }
     }

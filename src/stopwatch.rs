@@ -7,7 +7,7 @@ use crate::intervals::{Interval, IntervalList};
 
 #[derive(Debug)]
 pub struct Stopwatch {
-    pub start_time: Instant,
+    start_time: Instant,
     pub current_time: Duration,
     display_time: DisplayTime,
 
@@ -39,12 +39,8 @@ impl Stopwatch {
         show_interval: bool,
         show_cycle: bool,
     ) -> Self {
-        let start_time = Instant::now();
-        let zero_duration = Duration::from_secs(0);
-        let first_interval_end_time = match &interval_list {
-            Some(interval_list) => start_time + interval_list.intervals[0].duration,
-            None => start_time,
-        };
+        let (start_time, zero_duration, first_interval_end_time) =
+            Self::initialize_timers(&interval_list);
 
         Self {
             start_time,
@@ -69,6 +65,16 @@ impl Stopwatch {
 
             interval_shell_command: shell_command,
         }
+    }
+
+    fn initialize_timers(interval_list: &Option<IntervalList>) -> (Instant, Duration, Instant) {
+        let start_time = Instant::now();
+        let zero_duration = Duration::from_secs(0);
+        let first_interval_end_time = match interval_list {
+            Some(interval_list) => start_time + interval_list.intervals[0].duration,
+            None => start_time,
+        };
+        (start_time, zero_duration, first_interval_end_time)
     }
 
     /// update the current time on the stopwatch and re-evaluate interval if
@@ -136,7 +142,7 @@ impl Stopwatch {
         match self.paused {
             // pausing
             true => self.paused_start_time = Instant::now(),
-            // un-pausing
+            // unpausing
             false => {
                 self.paused_time_last = self.paused_start_time.elapsed();
                 self.paused_time_overall += self.paused_time_last;
@@ -167,6 +173,26 @@ impl Stopwatch {
         };
 
         status_string_parts.join(" ")
+    }
+
+    /// reset the stopwatch
+    pub fn reset(&mut self) {
+        let (start_time, zero_duration, first_interval_end_time) =
+            Self::initialize_timers(&self.interval_list);
+
+        self.start_time = start_time;
+        self.current_time = zero_duration;
+
+        self.interval_start_time = start_time;
+        self.interval_end_time = first_interval_end_time;
+        self.interval_remaining_time = zero_duration;
+        self.interval_i = 0;
+        self.intervals_elapsed = 0;
+        self.interval_cycles_elapsed = 0;
+
+        self.paused_time_overall = zero_duration;
+        self.paused_time_last = zero_duration;
+        self.paused_start_time = start_time;
     }
 }
 

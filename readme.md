@@ -80,6 +80,7 @@ keybindings while running the tui are as follows:
 | q     | quit   |
 | p     | pause  |
 | space | pause  |
+| r     | reset  |
 
 examples
 --------
