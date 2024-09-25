@@ -5,16 +5,16 @@
 }:
 rustPlatform.buildRustPackage rec {
   pname = "isw";
-  version = "0.3.0";
+  version = "0.3.2";
 
   src = fetchFromGitLab {
     owner = "thom-cameron";
     repo = pname;
     rev = version;
-    hash = "sha256-1gbh5Bfv/HW+UmHgdLScodPBY4qoOTJtJwMdkOk9/v4=";
+    hash = "sha256-1ULtKhjYgpmYdlGnQVa3T79r8uZ4BL4fRqI2VJWnNm8=";
   };
 
-  cargoHash = "sha256-LpKiP7bwiNEUXYvQsUG//wqOwGmg2UD3DA0Gb2h7kMw=";
+  cargoHash = "sha256-Qrs+7GIlL/ODu1kBnJO7IQYkaxbdlWJ9/TPIDYfE1bI=";
 
   meta = {
     description = "a simple terminal stopwatch application";
