@@ -12,13 +12,6 @@ use tui::App;
 use clap::Parser;
 
 fn main() -> io::Result<()> {
-    // try to prevent the user's machine from sleeping
-    let _ = keepawake::Builder::default()
-        .display(true)
-        .idle(true)
-        .sleep(true)
-        .create();
-
     // parse cli arguments and determine interval behaviour
     let args = Args::parse();
     let intervals: Option<IntervalList> = match args.intervals {
