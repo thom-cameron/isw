@@ -10,7 +10,7 @@ features:
   - a basic stopwatch in a nice tui
   - support for intervals
     - per-interval stopwatch colour
-    - notifications on interval boundaries
+    - execute shell commands when intervals finish
     - counting up or down to interval boundaries
     - displaying the number of intervals or cycles elapsed
   - writing the final time to stdout
