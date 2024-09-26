@@ -1,5 +1,6 @@
 use std::{
     fmt,
+    process::Command,
     time::{Duration, Instant},
 };
 
@@ -125,12 +126,14 @@ impl Stopwatch {
     fn execute_shell_command(&mut self) {
         if let Some(shell_command) = &self.interval_shell_command {
             let shell_command = &shell_command
+                .trim()
                 .replace("%i", &self.intervals_elapsed.to_string())
                 .replace("%c", &self.interval_cycles_elapsed.to_string());
 
-            let mut arguments = shell_command.split_whitespace();
-            if let Some(command) = arguments.next() {
-                let _ = std::process::Command::new(command).args(arguments).spawn();
+            let _result = if !cfg!(target_os = "windows") {
+                Command::new("sh").args(["-c", shell_command]).spawn()
+            } else {
+                Command::new("cmd").args(["/C", shell_command]).spawn()
             };
         };
     }
