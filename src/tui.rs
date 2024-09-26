@@ -16,7 +16,7 @@ use ratatui::{
     DefaultTerminal, Frame,
 };
 
-const REFRESH_RATE_HZ: f32 = 10.;
+const REFRESH_RATE_HZ: f32 = 60.;
 
 #[derive(Debug)]
 pub struct App {
@@ -94,10 +94,6 @@ impl App {
 impl Widget for &App {
     /// draw the tui of the app
     fn render(self, area: Rect, buf: &mut Buffer) {
-        let [area] = Layout::vertical([Constraint::Percentage(25)])
-            .flex(Flex::Center)
-            .areas(area);
-
         let text_style = Style::new()
             .fg(match self.stopwatch.get_current_interval() {
                 Some(interval) => interval.colour,
@@ -109,9 +105,11 @@ impl Widget for &App {
             Line::from(Span::styled(self.stopwatch.to_string(), text_style)),
             Line::from(Span::raw(self.stopwatch.get_status_string())),
         ];
-        Paragraph::new(counter_text)
-            .centered()
-            // .block(Block::new().borders(Borders::ALL))
-            .render(area, buf);
+
+        // lay out the stopwatch text in the central rows of the tui
+        let [area] = Layout::vertical([Constraint::Length(counter_text.len() as u16)])
+            .flex(Flex::Center)
+            .areas(area);
+        Paragraph::new(counter_text).centered().render(area, buf);
     }
 }
