@@ -95,7 +95,7 @@ a typical 25 minutes on, 5 minutes off pomodoro timer that counts down to and se
 isw \
   --intervals 1500,300 \
   --colours 2,1 \
-  --shell 'notify-send isw interval' \
+  --shell 'notify-send isw "pomodoro interval complete (cycle %c)"' \
   --pause \
   --descending \
   --show-cycle

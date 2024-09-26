@@ -127,8 +127,8 @@ impl Stopwatch {
         if let Some(shell_command) = &self.interval_shell_command {
             let shell_command = &shell_command
                 .trim()
-                .replace("%i", &self.intervals_elapsed.to_string())
-                .replace("%c", &self.interval_cycles_elapsed.to_string());
+                .replace("%i", &(self.intervals_elapsed + 1).to_string())
+                .replace("%c", &(self.interval_cycles_elapsed + 1).to_string());
 
             let _result = if !cfg!(target_os = "windows") {
                 Command::new("sh").args(["-c", shell_command]).spawn()
