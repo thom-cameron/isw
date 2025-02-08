@@ -1,0 +1,7 @@
+array_width = 100
+fn_call_width = 100
+fn_single_line = true
+format_strings = true
+single_line_if_else_max_width = 100
+single_line_let_else_max_width = 100
+wrap_comments = true
