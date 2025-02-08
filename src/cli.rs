@@ -8,7 +8,15 @@ pub struct Args {
     pub intervals: Option<String>,
 
     /// Colours to represent each interval
-    /// (comma-separated ANSI colours (0-7))
+    /// (comma-separated ANSI colours (0-7)
+    ///     0 black
+    ///     1 red
+    ///     2 green
+    ///     3 yellow
+    ///     4 blue
+    ///     5 magenta
+    ///     6 cyan
+    ///     7 white)
     #[arg(short, long, verbatim_doc_comment)]
     pub colours: Option<String>,
 
