@@ -51,14 +51,19 @@ impl App {
                 Err(err) => return (Err(err), self.stopwatch.to_string()),
             };
 
-            sleep(loop_duration - loop_start_time.elapsed());
+            let elapsed = loop_start_time.elapsed();
+            if elapsed < loop_duration {
+                sleep(loop_duration - elapsed);
+            };
         }
 
         (Ok(()), self.stopwatch.to_string())
     }
 
     /// draws the next frame of the tui
-    fn draw(&self, frame: &mut Frame) { frame.render_widget(self, frame.area()); }
+    fn draw(&self, frame: &mut Frame) {
+        frame.render_widget(self, frame.area());
+    }
 
     /// updates the application's state based on user input
     fn handle_events(&mut self) -> io::Result<()> {
@@ -88,7 +93,9 @@ impl App {
     }
 
     /// exit the main loop of the app
-    fn exit(&mut self) { self.exit = true; }
+    fn exit(&mut self) {
+        self.exit = true;
+    }
 }
 
 impl Widget for &App {
