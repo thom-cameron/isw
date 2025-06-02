@@ -38,16 +38,6 @@ cargo build --release
 
 then copy/move the resulting executable at `./target/release/isw` into your path.
 
-### nix
-
-a `default.nix` file is available in this repo to build the application. it needs access to [nixpkgs](https://github.com/NixOS/nixpkgs/) to build, which can be provided by the channel on your system (if configured) with:
-
-``` fish
-nix-build -E 'with import <nixpkgs> {}; callPackage ./default.nix {}'
-```
-
-then copy/move the resulting executable at `./result/bin/isw` into your path.
-
 usage
 -----
 
