@@ -1,6 +1,6 @@
 [package]
 name = "isw"
-version = "0.3.7"
+version = "0.3.8"
 edition = "2021"
 authors = ["Thom Cameron <thomcm@proton.me>"]
 description = "a simple terminal stopwatch application"
@@ -10,9 +10,9 @@ homepage = "https://gitlab.com/thom-cameron/isw"
 repository = "https://gitlab.com/thom-cameron/isw"
 
 [dependencies]
-clap = { version = "4.5.17", features = ["derive"] }
-crossterm = "0.28.1"
-ratatui = "0.28.1"
+clap = { version = "4.5.49", features = ["derive"] }
+crossterm = "0.29.0"
+ratatui = "0.29.0"
 
 [profile.release]
 lto = true
