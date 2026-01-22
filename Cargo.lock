@@ -343,7 +343,7 @@ checksum = "a6cb138bb79a146c1bd460005623e142ef0181e3d0219cb493e02f7d08a35695"
 
 [[package]]
 name = "isw"
-version = "0.3.8"
+version = "0.3.9"
 dependencies = [
  "clap",
  "crossterm 0.29.0",
